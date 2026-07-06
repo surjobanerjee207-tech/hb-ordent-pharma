@@ -4,7 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 
-const API_URL = "https://YOUR-RENDER-BACKEND-URL.onrender.com"; // update after deploying
+const API_URL =
+  import.meta.env.DEV || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3001"
+    : "https://YOUR-RENDER-BACKEND-URL.onrender.com"; // update after deploying
 
 export default function PrescriptionUpload() {
   const [name, setName] = useState("");
