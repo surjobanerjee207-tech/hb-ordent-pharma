@@ -54,6 +54,30 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "0px 0px -10% 0px",
+      threshold: 0.05,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const revealElements = document.querySelectorAll(
+      ".reveal-on-scroll, .reveal-scale, .reveal-left, .reveal-right"
+    );
+    revealElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleCall = () => {
     window.location.href = "tel:+919876543210";
   };
@@ -240,7 +264,7 @@ export default function Home() {
       {/* About Us Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 reveal-on-scroll">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">About HB Ordent Pharma</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Serving the Kadma community with genuine medicines and trusted healthcare support since 2010.
@@ -253,7 +277,7 @@ export default function Home() {
               { icon: AlertCircle, title: "Fast Service", desc: "Quick assistance always" },
               { icon: Star, title: "Trusted Local", desc: "Community favorite" }
             ].map((item, idx) => (
-              <Card key={idx} className="p-6 text-center hover:shadow-lg transition-shadow glass-card animate-fade-up" style={{animationDelay: `${idx * 100}ms`}}>
+              <Card key={idx} className="p-6 text-center hover:shadow-lg transition-shadow glass-card reveal-scale" style={{transitionDelay: `${idx * 100}ms`}}>
                 <item.icon className="w-12 h-12 mx-auto mb-4 text-emerald-600" />
                 <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-600">{item.desc}</p>
@@ -262,11 +286,11 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+ 
       {/* Services Section */}
       <section id="services" className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 reveal-on-scroll">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Our Services</h2>
             <p className="text-lg text-gray-600">Everything you need for your health and wellness</p>
           </div>
@@ -291,7 +315,7 @@ export default function Home() {
                 image: "/health-products.png"
               }
             ].map((service, idx) => (
-              <Card key={idx} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 glass-card">
+              <Card key={idx} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 glass-card reveal-scale" style={{ transitionDelay: `${idx * 150}ms` }}>
                 <img src={service.image} alt={service.title} className="w-full h-48 object-cover" />
                 <div className="p-6">
                   <service.icon className="w-8 h-8 text-emerald-600 mb-3" />
@@ -311,7 +335,7 @@ export default function Home() {
       <section id="why-us" className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="reveal-left">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">Why Choose HB Ordent Pharma?</h2>
               <div className="space-y-4">
                 {[
@@ -329,7 +353,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-emerald-100 to-blue-100 rounded-2xl p-8 text-center">
+            <div className="bg-gradient-to-br from-emerald-100 to-blue-100 rounded-2xl p-8 text-center reveal-right">
               <Clock className="w-24 h-24 text-emerald-600 mx-auto mb-6" />
               <h3 className="text-3xl font-bold text-gray-900 mb-4">Always Open</h3>
               <p className="text-xl text-gray-700 mb-6">24 Hours a Day, 7 Days a Week</p>
@@ -342,9 +366,9 @@ export default function Home() {
       {/* Location & Contact */}
       <section id="contact" className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 text-center">Find Us</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 text-center reveal-on-scroll">Find Us</h2>
           <div className="grid md:grid-cols-2 gap-12">
-            <div>
+            <div className="reveal-left">
               <Card className="p-8 h-full glass-card">
                 <h3 className="font-bold text-2xl mb-6">Our Location</h3>
                 <div className="space-y-4 mb-8">
@@ -383,7 +407,7 @@ export default function Home() {
                 </div>
               </Card>
             </div>
-            <div className="rounded-2xl overflow-hidden shadow-lg h-96">
+            <div className="rounded-2xl overflow-hidden shadow-lg h-96 reveal-right">
               <MapView
                 initialCenter={{ lat: 22.8046, lng: 86.2015 }}
                 initialZoom={15}
@@ -396,7 +420,7 @@ export default function Home() {
       {/* FAQ Section */}
       <section className="py-16 md:py-24 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 text-center">Frequently Asked Questions</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 text-center reveal-on-scroll">Frequently Asked Questions</h2>
           <div className="max-w-3xl mx-auto space-y-4">
             {[
               { q: "Are you open 24 hours?", a: "Yes, we operate 24×7. Whether it's day or night, we're always available to serve you." },
@@ -404,7 +428,7 @@ export default function Home() {
               { q: "Do you accept prescriptions?", a: "Absolutely! You can upload your prescription via WhatsApp, and we'll prepare your medicines." },
               { q: "Do you stock branded and generic medicines?", a: "Yes, we stock both branded and generic medicines to suit your needs and budget." }
             ].map((faq, idx) => (
-              <Card key={idx} className="p-6 hover:shadow-md transition glass-card">
+              <Card key={idx} className="p-6 hover:shadow-md transition glass-card reveal-scale" style={{ transitionDelay: `${idx * 100}ms` }}>
                 <h3 className="font-semibold text-lg text-gray-900 mb-2">{faq.q}</h3>
                 <p className="text-gray-600">{faq.a}</p>
               </Card>
@@ -418,8 +442,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           {/* Customer Reviews Section */}
           <div className="mb-16 pb-12 border-b border-gray-800">
-            <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 animate-fade-up">What Our Customers Say</h2>
-            <p className="text-center text-gray-400 mb-12 animate-fade-up delay-100">Trusted by thousands of satisfied customers across Kadma and Jamshedpur</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 reveal-on-scroll">What Our Customers Say</h2>
+            <p className="text-center text-gray-400 mb-12 reveal-on-scroll" style={{ transitionDelay: '100ms' }}>Trusted by thousands of satisfied customers across Kadma and Jamshedpur</p>
             
             <div className="grid md:grid-cols-3 gap-6">
               {[
@@ -460,7 +484,7 @@ export default function Home() {
                   avatar: "AD"
                 }
               ].map((review, idx) => (
-                <Card key={idx} className="p-6 glass-card animate-fade-up" style={{ animationDelay: `${200 + idx * 100}ms` }}>
+                <Card key={idx} className="p-6 glass-card reveal-scale" style={{ transitionDelay: `${idx * 100}ms` }}>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
