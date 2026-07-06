@@ -3,10 +3,13 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Phone, MessageCircle, Clock, CheckCircle2, AlertCircle, Pill, Heart, Package, Star, ChevronRight, Facebook, Share2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { MapView } from "@/components/Map";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [showMedicines, setShowMedicines] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const medicinesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,9 +20,38 @@ export default function Home() {
       if (window.scrollY > window.innerHeight * 0.3) {
         setShowMedicines(true);
       }
+      
+      // Clear active section if scrolled to top
+      if (window.scrollY < 200) {
+        setActiveSection("");
+      }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = ["services", "why-us", "contact"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-40% 0px -50% 0px", // Trigger when section is in the middle of screen
+      threshold: 0.15,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const handleCall = () => {
@@ -108,10 +140,54 @@ export default function Home() {
             <img src="/logo.png" alt="HB Ordent Pharma" className="h-10 w-10" />
             <span className="font-bold text-lg text-emerald-700">HB Ordent</span>
           </div>
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#services" className="text-sm font-medium text-gray-700 hover:text-emerald-700 transition animate-fade-up delay-100">Services</a>
-            <a href="#why-us" className="text-sm font-medium text-gray-700 hover:text-emerald-700 transition animate-fade-up delay-200">Why Us</a>
-            <a href="#contact" className="text-sm font-medium text-gray-700 hover:text-emerald-700 transition animate-fade-up delay-300">Contact</a>
+          <nav className="hidden md:flex items-center gap-1 relative bg-emerald-950/5 dark:bg-white/5 p-1 rounded-full border border-emerald-950/10 dark:border-white/10 backdrop-blur-md shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+            {[
+              { id: "services", label: "Services" },
+              { id: "why-us", label: "Why Us" },
+              { id: "contact", label: "Contact" }
+            ].map((tab) => {
+              const isActive = activeSection === tab.id;
+              const isHovered = hoveredSection === tab.id;
+              return (
+                <a
+                  key={tab.id}
+                  href={`#${tab.id}`}
+                  onMouseEnter={() => setHoveredSection(tab.id)}
+                  onMouseLeave={() => setHoveredSection(null)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveSection(tab.id);
+                    document.getElementById(tab.id)?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className={`relative px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-300 ${
+                    isActive
+                      ? "text-emerald-800 dark:text-emerald-400"
+                      : isHovered
+                      ? "text-emerald-700 dark:text-emerald-300"
+                      : "text-gray-600 dark:text-gray-300"
+                  }`}
+                  style={{ WebkitTapHighlightColor: "transparent" }}
+                >
+                  {isHovered && !isActive && (
+                    <motion.div
+                      layoutId="hover-nav-indicator"
+                      className="absolute inset-0 bg-emerald-500/10 dark:bg-emerald-400/10 rounded-full"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      style={{ originY: "0px" }}
+                    />
+                  )}
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav-indicator"
+                      className="absolute inset-0 bg-white dark:bg-slate-900 shadow-[0_2px_8px_rgba(16,185,129,0.08)] rounded-full"
+                      transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                      style={{ originY: "0px" }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                </a>
+              );
+            })}
           </nav>
           <div className="flex items-center gap-2">
             <Button onClick={handleCall} size="sm" variant="outline" className="hidden sm:inline-flex">
@@ -134,22 +210,22 @@ export default function Home() {
               </div>
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
                 {['24×7', 'Pharmacy', 'Service', 'in', 'Kadma,', 'Jamshedpur'].map((word, idx) => (
-                  <span key={idx} className="inline-block mr-2 animate-word-pop" style={{ animationDelay: `${200 + idx * 100}ms` }}>
+                  <span key={idx} className="inline-block mr-2 animate-word-pop" style={{ animationDelay: `${50 + idx * 30}ms` }}>
                     {word}
                   </span>
                 ))}
               </h1>
-              <p className="text-xl text-gray-700 leading-relaxed animate-text-reveal delay-700">
+              <p className="text-xl text-gray-700 leading-relaxed animate-text-reveal delay-100">
                 Quality medicines, healthcare products, and emergency support available round the clock. Your trusted pharmacy for every health need.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-up delay-800">
-                <Button onClick={handleCall} size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white animate-scale-in delay-900">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button onClick={handleCall} size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white animate-scale-in delay-200">
                   <Phone className="w-5 h-5 mr-2" /> Call Now
                 </Button>
-                <Button onClick={handleWhatsApp} size="lg" variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 animate-scale-in delay-1000">
+                <Button onClick={handleWhatsApp} size="lg" variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50 animate-scale-in delay-200">
                   <MessageCircle className="w-5 h-5 mr-2" /> WhatsApp Inquiry
                 </Button>
-                <Button onClick={handleDirections} size="lg" variant="outline" className="border-gray-300 animate-scale-in delay-1100">
+                <Button onClick={handleDirections} size="lg" variant="outline" className="border-gray-300 animate-scale-in delay-300">
                   <MapPin className="w-5 h-5 mr-2" /> Get Directions
                 </Button>
               </div>
